@@ -10,8 +10,18 @@ import subprocess
 
 ## important variable
 ##########
+src_ip = "localhost"
+dest_ip = "localhost"
+src_user_name = 'root'
+dest_user_name = 'root'
+src_pwd = '123456'
+dest_pwd = '123456'
+src_schema = "q3"
+dest_schema = "q4"
 time_stamp = datetime.datetime.now().strftime("%y%m%d%H%M%S")
 export_folder_name = "EXPORT"
+
+
 ###########
 
 
@@ -31,34 +41,58 @@ def check_args(args):
 
     return True
 
+
 def create_dir_if_not_exist(dir_name):
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
+
+
+def create_file(file_with_path):
+    with open(file_with_path, 'a'):
+        os.utime(file_with_path, None)
+
 
 def export_upazilla(upazilla_list):
     with open('ExportUpazilla.sql', 'r') as myfile:
         data = myfile.read()
     query = data % upazilla_list
     print query
-    create_dir_if_not_exist(os.path.join(export_folder_name,"upazilla_" + time_stamp))
+    create_dir_if_not_exist(os.path.join(export_folder_name, "upazilla_" + time_stamp))
 
-    command = 'mysql -h %s -u %s -p -sN -e "%s" pesp_q3_nayan_desk > %s' % ("192.168.1.56",
-                                                                            "nayan" ,
-                                                                            query,
-                                                                            os.path.join(export_folder_name,"upazilla_" + time_stamp,"upazilla"))
+    command = 'mysql -h %s -u %s -p -sN -e "%s" %s > %s' % (src_ip,
+                                                            src_user_name,
+                                                            query,
+                                                            src_schema,
+                                                            os.path.join(export_folder_name, "upazilla_" + time_stamp,
+                                                                         "upazilla"))
+    create_file(os.path.join(export_folder_name, "upazilla_" + time_stamp, "upazilla"))
     os.system(command)
-    print "Upazilla eported"
+    print "Upazilla exported".upper()
 
 
 def create_export_dir():
     create_dir_if_not_exist(export_folder_name)
+
+
+def export(table_name, query):
+    dir_path = os.path.join(export_folder_name, table_name + "_" + time_stamp)
+    create_dir_if_not_exist(dir_path)
+
+    command = 'mysql -h %s -u %s -p -sN -e "%s" %s > %s' % (src_ip,
+                                                            src_user_name,
+                                                            query,
+                                                            src_schema,
+                                                            os.path.join(dir_path, table_name))
+    create_file(os.path.join(dir_path, table_name))
+    os.system(command)
+    print (table_name + " exported").upper()
+
 
 def main():
     create_export_dir()
     check_args(sys.argv)
 
     export_upazilla(sys.argv[2])
-
 
 
 main()
