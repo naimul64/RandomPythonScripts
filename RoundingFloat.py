@@ -60,7 +60,7 @@ def run_test_by_python_build_in(test_case_list):
 def Main():
 
     start_time = datetime.datetime.now()
-    test_case_list = generate_test_case(10000000)
+    test_case_list = generate_test_case(15000000)
     end_time = datetime.datetime.now()
     print "Time taken to generate test case: " + str(end_time - start_time) + " sec."
 
